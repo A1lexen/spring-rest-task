@@ -32,8 +32,7 @@ public class FileService {
         // try to create directories
         try {
             Files.createDirectories(this.fileStorageLocation);
-        }
-        catch (Exception ex) {
+        } catch (Exception ex) {
             throw new RuntimeException("could not create the directories.", ex);
         }
     }
@@ -51,8 +50,7 @@ public class FileService {
             Files.copy(file.getInputStream(), targetDirectory, StandardCopyOption.REPLACE_EXISTING);
 
             return fileName;
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             throw new RuntimeException("could not store file " + fileName + ".", e);
         }
     }

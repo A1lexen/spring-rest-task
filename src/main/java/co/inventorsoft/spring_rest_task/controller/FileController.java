@@ -23,11 +23,11 @@ public class FileController {
     }
 
     @PostMapping("/upload")
-    public FileResponse uploadFile(@RequestParam("file") MultipartFile file) {
+    public ResponseEntity<FileResponse> uploadFile(@RequestParam("file") MultipartFile file) {
         String fileName = fileService.store(file);
         String fileDownloadUri = fileService.getDownloadUri(fileName);
-
-        return new FileResponse(fileName, fileDownloadUri, file.getContentType(), file.getSize());
+        return ResponseEntity.ok()
+                .body(new FileResponse(fileName, fileDownloadUri, file.getContentType(), file.getSize()));
     }
 
     @GetMapping("/files/{fileName:.+}")
@@ -59,7 +59,7 @@ public class FileController {
     }
 
     @GetMapping("/files/{fileName:.+}/info")
-    public FileResponse infoOfFile(@PathVariable String fileName, HttpServletRequest request) throws IOException {
+    public ResponseEntity<FileResponse> infoOfFile(@PathVariable String fileName, HttpServletRequest request) throws IOException {
         // Load file as Resource
         Resource resource = fileService.load(fileName);
 
@@ -67,7 +67,8 @@ public class FileController {
         String contentType = fileService.getContentType(resource, request.getServletContext());
 
         String fileDownloadUri = fileService.getDownloadUri(fileName);
-        return new FileResponse(fileName, fileDownloadUri, contentType, resource.getFile().length());
+        return ResponseEntity.ok()
+                .body(new FileResponse(fileName, fileDownloadUri, contentType, resource.getFile().length()));
     }
 
 }
