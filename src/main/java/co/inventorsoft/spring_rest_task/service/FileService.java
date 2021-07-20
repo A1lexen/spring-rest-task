@@ -2,9 +2,11 @@ package co.inventorsoft.spring_rest_task.service;
 
 
 import co.inventorsoft.spring_rest_task.exception.MyFileNotFoundException;
+import co.inventorsoft.spring_rest_task.payload.FileResponse;
 import co.inventorsoft.spring_rest_task.property.FileStorageProperties;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -70,6 +72,7 @@ public class FileService {
             throw new MyFileNotFoundException("file " + fileName + " not found.", ex);
         }
     }
+
     public boolean update(String oldFileName, String newFileName) throws IOException {
         // check if new filename is valid
         if (newFileName.contains("..")) {
@@ -87,19 +90,17 @@ public class FileService {
     }
 
     public boolean delete(String fileName) throws IOException {
-        File file = load(fileName).getFile();
-        return file.delete();
+        return load(fileName).getFile().delete();
     }
 
     /**
-     * Try to determine file's content type
+     * Try to determine file content type
      */
     public String getContentType(Resource resource, ServletContext servletContext) {
         String contentType = null;
         try {
             contentType = servletContext.getMimeType(resource.getFile().getAbsolutePath());
-        }
-        catch (IOException ex) {
+        } catch (IOException ex) {
             System.out.println("could not determine file type.");
         }
 
@@ -115,5 +116,22 @@ public class FileService {
                 .path("/files/")
                 .path(fileName)
                 .toUriString();
+    }
+
+    public FileResponse uploadFile(MultipartFile file) {
+        String fileName = store(file);
+        String fileDownloadUri = getDownloadUri(fileName);
+        return new FileResponse(fileName, fileDownloadUri, file.getContentType(), file.getSize());
+    }
+
+    public FileResponse infoOfFile(String fileName, ServletContext servletContext) throws IOException {
+        // Load file as Resource
+        Resource resource = load(fileName);
+
+        // Try to determine file content type
+        String contentType = getContentType(resource, servletContext);
+
+        String fileDownloadUri = getDownloadUri(fileName);
+        return new FileResponse(fileName, fileDownloadUri, contentType, resource.getFile().length());
     }
 }
