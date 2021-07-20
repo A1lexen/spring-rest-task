@@ -1,7 +1,9 @@
 package co.inventorsoft.spring_rest_task.service;
 
 
+import co.inventorsoft.spring_rest_task.exception.InvalidFileNameException;
 import co.inventorsoft.spring_rest_task.exception.MyFileNotFoundException;
+import co.inventorsoft.spring_rest_task.payload.FileResponse;
 import co.inventorsoft.spring_rest_task.property.FileStorageProperties;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -25,34 +27,34 @@ public class FileService {
     private final Path fileStorageLocation;
 
     public FileService(FileStorageProperties fileStorageProperties) {
-        // get path from application.properties
-        this.fileStorageLocation = Paths.get(fileStorageProperties.getUploadDir())
-                .toAbsolutePath().normalize();
-
-        // try to create directories
         try {
+            // get path from application.properties
+            this.fileStorageLocation = Paths.get(fileStorageProperties.getUploadDir())
+                    .toAbsolutePath().normalize();
+            // try to create directories
             Files.createDirectories(this.fileStorageLocation);
-        }
-        catch (Exception ex) {
+        } catch (Exception ex) {
             throw new RuntimeException("could not create the directories.", ex);
+        }
+    }
+
+    private void validateFilename(String fileName) {
+        String fileNameRegex = "^[a-zA-Z0-9](?:[a-zA-Z0-9 ._-]*[a-zA-Z0-9])?\\.[a-zA-Z0-9_-]+$";
+        if (!fileName.matches(fileNameRegex)) {
+            throw new InvalidFileNameException(fileName);
         }
     }
 
     public String store(MultipartFile file) {
         // normalize file name
         String fileName = StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename()));
-
+        validateFilename(fileName);
         try {
-            if (fileName.contains("..")) {
-                throw new RuntimeException("filename " + fileName + " is invalid.");
-            }
             // copy file to the target directory
             Path targetDirectory = this.fileStorageLocation.resolve(fileName);
             Files.copy(file.getInputStream(), targetDirectory, StandardCopyOption.REPLACE_EXISTING);
-
             return fileName;
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             throw new RuntimeException("could not store file " + fileName + ".", e);
         }
     }
@@ -72,11 +74,10 @@ public class FileService {
             throw new MyFileNotFoundException("file " + fileName + " not found.", ex);
         }
     }
+
     public boolean update(String oldFileName, String newFileName) throws IOException {
-        // check if new filename is valid
-        if (newFileName.contains("..")) {
-            return false;
-        }
+        validateFilename(newFileName);
+        //create new file here
         Path filePath = fileStorageLocation.resolve(newFileName).normalize();
 
         File oldFile = load(oldFileName).getFile();
@@ -89,27 +90,18 @@ public class FileService {
     }
 
     public boolean delete(String fileName) throws IOException {
-        File file = load(fileName).getFile();
-        return file.delete();
+        return load(fileName).getFile().delete();
     }
 
     /**
-     * Try to determine file's content type
+     * Try to determine file content type
      */
     public String getContentType(Resource resource, ServletContext servletContext) {
-        String contentType = null;
         try {
-            contentType = servletContext.getMimeType(resource.getFile().getAbsolutePath());
+            return servletContext.getMimeType(resource.getFile().getAbsolutePath());
+        } catch (IOException ex) {
+            return "application/octet-stream";
         }
-        catch (IOException ex) {
-            System.out.println("could not determine file type.");
-        }
-
-        // Fallback to the default content type if type could not be determined
-        if (contentType == null) {
-            contentType = "application/octet-stream";
-        }
-        return contentType;
     }
 
     public String getDownloadUri(String fileName) {
@@ -117,5 +109,22 @@ public class FileService {
                 .path("/files/")
                 .path(fileName)
                 .toUriString();
+    }
+
+    public FileResponse uploadFile(MultipartFile file) {
+        String fileName = store(file);
+        String fileDownloadUri = getDownloadUri(fileName);
+        return new FileResponse(fileName, fileDownloadUri, file.getContentType(), file.getSize());
+    }
+
+    public FileResponse infoOfFile(String fileName, ServletContext servletContext) throws IOException {
+        // Load file as Resource
+        Resource resource = load(fileName);
+
+        // Try to determine file content type
+        String contentType = getContentType(resource, servletContext);
+
+        String fileDownloadUri = getDownloadUri(fileName);
+        return new FileResponse(fileName, fileDownloadUri, contentType, resource.getFile().length());
     }
 }
