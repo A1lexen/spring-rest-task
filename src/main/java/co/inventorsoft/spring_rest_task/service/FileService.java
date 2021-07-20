@@ -1,6 +1,7 @@
 package co.inventorsoft.spring_rest_task.service;
 
 
+import co.inventorsoft.spring_rest_task.exception.InvalidFileNameException;
 import co.inventorsoft.spring_rest_task.exception.MyFileNotFoundException;
 import co.inventorsoft.spring_rest_task.payload.FileResponse;
 import co.inventorsoft.spring_rest_task.property.FileStorageProperties;
@@ -26,6 +27,12 @@ import java.util.Objects;
 public class FileService {
     private final Path fileStorageLocation;
 
+    private void validateFilename(String fileName) {
+        String fileNameRegex = "^[a-zA-Z0-9](?:[a-zA-Z0-9 ._-]*[a-zA-Z0-9])?\\.[a-zA-Z0-9_-]+$";
+        if (!fileName.matches(fileNameRegex)) {
+            throw new InvalidFileNameException(fileName);
+        }
+    }
     public FileService(FileStorageProperties fileStorageProperties) {
         // get path from application.properties
         this.fileStorageLocation = Paths.get(fileStorageProperties.getUploadDir())
@@ -42,15 +49,11 @@ public class FileService {
     public String store(MultipartFile file) {
         // normalize file name
         String fileName = StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename()));
-
+        validateFilename(fileName);
         try {
-            if (fileName.contains("..")) {
-                throw new RuntimeException("filename " + fileName + " is invalid.");
-            }
             // copy file to the target directory
             Path targetDirectory = this.fileStorageLocation.resolve(fileName);
             Files.copy(file.getInputStream(), targetDirectory, StandardCopyOption.REPLACE_EXISTING);
-
             return fileName;
         } catch (IOException e) {
             throw new RuntimeException("could not store file " + fileName + ".", e);
@@ -74,10 +77,8 @@ public class FileService {
     }
 
     public boolean update(String oldFileName, String newFileName) throws IOException {
-        // check if new filename is valid
-        if (newFileName.contains("..")) {
-            return false;
-        }
+        validateFilename(newFileName);
+        //create new file here
         Path filePath = fileStorageLocation.resolve(newFileName).normalize();
 
         File oldFile = load(oldFileName).getFile();
