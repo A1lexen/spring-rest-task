@@ -7,7 +7,6 @@ import co.inventorsoft.spring_rest_task.payload.FileResponse;
 import co.inventorsoft.spring_rest_task.property.FileStorageProperties;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -27,22 +26,22 @@ import java.util.Objects;
 public class FileService {
     private final Path fileStorageLocation;
 
+    public FileService(FileStorageProperties fileStorageProperties) {
+        try {
+            // get path from application.properties
+            this.fileStorageLocation = Paths.get(fileStorageProperties.getUploadDir())
+                    .toAbsolutePath().normalize();
+            // try to create directories
+            Files.createDirectories(this.fileStorageLocation);
+        } catch (Exception ex) {
+            throw new RuntimeException("could not create the directories.", ex);
+        }
+    }
+
     private void validateFilename(String fileName) {
         String fileNameRegex = "^[a-zA-Z0-9](?:[a-zA-Z0-9 ._-]*[a-zA-Z0-9])?\\.[a-zA-Z0-9_-]+$";
         if (!fileName.matches(fileNameRegex)) {
             throw new InvalidFileNameException(fileName);
-        }
-    }
-    public FileService(FileStorageProperties fileStorageProperties) {
-        // get path from application.properties
-        this.fileStorageLocation = Paths.get(fileStorageProperties.getUploadDir())
-                .toAbsolutePath().normalize();
-
-        // try to create directories
-        try {
-            Files.createDirectories(this.fileStorageLocation);
-        } catch (Exception ex) {
-            throw new RuntimeException("could not create the directories.", ex);
         }
     }
 
