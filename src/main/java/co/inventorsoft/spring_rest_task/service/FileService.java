@@ -97,18 +97,11 @@ public class FileService {
      * Try to determine file content type
      */
     public String getContentType(Resource resource, ServletContext servletContext) {
-        String contentType = null;
         try {
-            contentType = servletContext.getMimeType(resource.getFile().getAbsolutePath());
+            return servletContext.getMimeType(resource.getFile().getAbsolutePath());
         } catch (IOException ex) {
-            System.out.println("could not determine file type.");
+            return "application/octet-stream";
         }
-
-        // Fallback to the default content type if type could not be determined
-        if (contentType == null) {
-            contentType = "application/octet-stream";
-        }
-        return contentType;
     }
 
     public String getDownloadUri(String fileName) {
