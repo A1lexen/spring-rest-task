@@ -1,53 +1,67 @@
 package com.example.demo.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
+import com.example.demo.exeption.FileNotFoundException;
+import com.example.demo.exeption.NoDataFoundException;
+import lombok.AccessLevel;
+import lombok.experimental.FieldDefaults;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Service
+@FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 public class FileUploadService {
-    private String path = "//home//ivan//Завантаження//Нова тека//Нова тека//";
-    public List<com.example.demo.model.File> listFiles(){
+    String path = System.getProperty("user.dir") + "//src//main//resources//store//";
+
+    public List<com.example.demo.model.FileData> listFiles() {
         File folder = new File(path);
         List<File> files = List.of(folder.listFiles());
-        List<com.example.demo.model.File> fileList = new ArrayList<>();
-        for (File f:files) {
-           fileList.add(new com.example.demo.model.File(f.getName(), (int) f.length(), f.getPath()));
+        List<com.example.demo.model.FileData> fileList = new ArrayList<>();
+        if(files.isEmpty()) throw new NoDataFoundException();
+        for (File f : files) {
+            fileList.add(new com.example.demo.model.FileData(f.getName(), (int) f.length(), f.getPath()));
         }
         return fileList;
     }
 
-    public String getPath() {
-        return path;
+    public Long length(String name) {
+        return new File(path + name).length();
     }
 
-    public void fileUpload(MultipartFile file, String name) throws IOException {
-       file.transferTo(new File(path + name));
+    public void fileUpload(MultipartFile file, String name)  {
+        File file1 = new File(path + name);
+        try {
+            file.transferTo(file1);
+        } catch (IOException e) {
+            throw new NoDataFoundException();
+        }
     }
 
     public void deleteFile(String file) throws IOException {
-        Files.deleteIfExists(Path.of(path, file));
+
+            if(!Files.deleteIfExists(
+                    Path.of(path, file))) throw new FileNotFoundException(file);
+
     }
 
-    public void setFile(String file_name, String old_name) throws IOException {
-       File file = new File(path+old_name);
-       file.renameTo(new File(path+file_name));
+
+    public void setFile(String file_name, String old_name) {
+        File file = new File(path + old_name);
+        file.renameTo(new File(path + file_name));
     }
 
-    public InputStreamResource download(String name) throws FileNotFoundException {
+    public InputStreamResource download(String name) throws java.io.FileNotFoundException {
+        File file = new File(path, name);
+        if (!file.exists()) throw new FileNotFoundException(name);
         return new InputStreamResource(new FileInputStream(new File(path, name)));
     }
 
