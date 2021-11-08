@@ -1,7 +1,7 @@
 package com.example.demo.controllers;
 
 import com.example.demo.service.FileUploadService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -14,14 +14,10 @@ import java.io.IOException;
 import java.util.List;
 
 @RestController
+@AllArgsConstructor
 public class FilesUploadController {
 
     FileUploadService fileUploadService;
-
-    @Autowired
-    public FilesUploadController(FileUploadService fileUploadService) {
-        this.fileUploadService = fileUploadService;
-    }
 
     @GetMapping("/all")
     public ResponseEntity<List<com.example.demo.model.FileData>> listFiles() {
@@ -49,13 +45,13 @@ public class FilesUploadController {
 
     @PostMapping("/upload")
     public ResponseEntity<?> fileUpload(MultipartFile file, String name) {
-            fileUploadService.fileUpload(file, name);
+        fileUploadService.fileUpload(file, name);
         return ResponseEntity.status(HttpStatus.OK).body("uploaded");
     }
 
     @DeleteMapping("/delete")
     public ResponseEntity<String> deleteFile(String name) throws IOException {
-            fileUploadService.deleteFile(name);
+        fileUploadService.deleteFile(name);
 
         return ResponseEntity.status(HttpStatus.OK).body("deleted");
     }
@@ -63,7 +59,7 @@ public class FilesUploadController {
     @PutMapping("/set")
     public ResponseEntity<String> setFile(@RequestParam("name_new") String nameNew, @RequestParam("name_old") String nameOld) {
 
-            fileUploadService.setFile(nameNew, nameOld);
+        fileUploadService.setFile(nameNew, nameOld);
 
         return ResponseEntity.status(HttpStatus.OK).build();
     }
