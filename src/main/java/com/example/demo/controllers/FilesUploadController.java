@@ -1,5 +1,6 @@
 package com.example.demo.controllers;
 
+import com.example.demo.model.FileData;
 import com.example.demo.service.FileUploadService;
 import lombok.AllArgsConstructor;
 import org.springframework.core.io.InputStreamResource;
@@ -20,7 +21,7 @@ public class FilesUploadController {
     FileUploadService fileUploadService;
 
     @GetMapping("/all")
-    public ResponseEntity<List<com.example.demo.model.FileData>> listFiles() {
+    public ResponseEntity<List<FileData>> listFiles() {
         return ResponseEntity.status(HttpStatus.OK).body(fileUploadService.listFiles());
     }
 
@@ -57,7 +58,7 @@ public class FilesUploadController {
     }
 
     @PutMapping("/set")
-    public ResponseEntity<String> setFile(@RequestParam("name_new") String nameNew, @RequestParam("name_old") String nameOld) {
+    public ResponseEntity<String> setFile(String nameNew, String nameOld) {
 
         fileUploadService.setFile(nameNew, nameOld);
 

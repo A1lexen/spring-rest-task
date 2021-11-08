@@ -1,14 +1,16 @@
 package com.example.demo.model;
 
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.experimental.FieldDefaults;
 
 @AllArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
+@Getter
 public class FileData {
 
-   @Getter  private String name;
-   @Getter  private int size;
-    @Getter private String path;
-
-
+    String name;
+    int size;
+    String path;
 }

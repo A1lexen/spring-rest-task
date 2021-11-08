@@ -2,6 +2,7 @@ package com.example.demo.service;
 
 import com.example.demo.exeption.FileNotFoundException;
 import com.example.demo.exeption.NoDataFoundException;
+import com.example.demo.model.FileData;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import org.springframework.core.io.ClassPathResource;
@@ -22,7 +23,7 @@ import java.util.List;
 public class FileUploadService {
     String path = System.getProperty("user.dir") + "//src//main//resources//store//";
 
-    public List<com.example.demo.model.FileData> listFiles() {
+    public List<FileData> listFiles() {
         File folder = new File(path);
         List<File> files = List.of(folder.listFiles());
         List<com.example.demo.model.FileData> fileList = new ArrayList<>();
