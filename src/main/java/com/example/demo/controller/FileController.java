@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.util.List;
 
 @RestController
+@RequestMapping("/file")
 public class FileController {
 
 
@@ -25,32 +26,32 @@ public class FileController {
     }
 
 
-    @PostMapping("/upload")
+    @PostMapping("upload")
     public FileDto uploadFile(@RequestParam String name, @RequestParam MultipartFile file) throws Exception{
         return fileService.uploadFile(name, file);
     }
 
-    @GetMapping("/allFiles")
+    @GetMapping("allFiles")
     public List<FileDto> allFiles(){
         return fileService.getAllFiles();
     }
 
-    @GetMapping("/search")
-    public List<FileDto> searchForFiles(@RequestParam String name){
+    @GetMapping("search/{name}")
+    public List<FileDto> searchForFiles(@PathVariable String name){
         return fileService.getFilesByName(name);
     }
 
-    @DeleteMapping("/delete/{name}")
-    public List<FileDto> deleteFile(@PathVariable("name") String name) throws IOException {
+    @DeleteMapping("delete/{name}")
+    public List<FileDto> deleteFile(@PathVariable String name) throws IOException {
         return fileService.deleteFile(name);
     }
 
-    @PutMapping("/changeFileName")
+    @PutMapping("changeFileName")
     public FileDto changeFileName(@RequestParam String name, @RequestParam String newName){
         return fileService.changeFileName(name, newName);
     }
 
-    @GetMapping("/download/{name}")
+    @GetMapping("download/{name}")
     public ResponseEntity<Resource> downloadFile(@PathVariable("name") String name) throws FileNotFoundException {
         return fileService.downloadFile(name);
     }
