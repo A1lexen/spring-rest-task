@@ -2,7 +2,9 @@ package com.example.demo.controllers;
 
 import com.example.demo.model.FileData;
 import com.example.demo.service.FileUploadService;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -16,6 +18,7 @@ import java.util.List;
 
 @RestController
 @AllArgsConstructor
+@FieldDefaults(level= AccessLevel.PRIVATE)
 public class FilesUploadController {
 
     FileUploadService fileUploadService;

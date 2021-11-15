@@ -26,10 +26,10 @@ public class FileUploadService {
     public List<FileData> listFiles() {
         File folder = new File(path);
         List<File> files = List.of(folder.listFiles());
-        List<com.example.demo.model.FileData> fileList = new ArrayList<>();
+        List<FileData> fileList = new ArrayList<>();
         if(files.isEmpty()) throw new NoDataFoundException();
         for (File f : files) {
-            fileList.add(new com.example.demo.model.FileData(f.getName(), (int) f.length(), f.getPath()));
+            fileList.add(new FileData(f.getName(), (int) f.length(), f.getPath()));
         }
         return fileList;
     }
@@ -48,9 +48,12 @@ public class FileUploadService {
     }
 
     public void deleteFile(String file) throws IOException {
-
-            if(!Files.deleteIfExists(
-                    Path.of(path, file))) throw new FileNotFoundException(file);
+            File file1 = new File(path+file);
+            if(file1.exists()){
+                file1.delete();
+            }else {
+                throw new FileNotFoundException(file);
+            }
 
     }
 
@@ -62,7 +65,9 @@ public class FileUploadService {
 
     public InputStreamResource download(String name) throws java.io.FileNotFoundException {
         File file = new File(path, name);
-        if (!file.exists()) throw new FileNotFoundException(name);
+        if (!file.exists()) {
+            throw new FileNotFoundException(name);
+        }
         return new InputStreamResource(new FileInputStream(new File(path, name)));
     }
 
