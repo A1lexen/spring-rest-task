@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Delete</title>
+</head>
+<body>
+
+<form th:method="POST" th:action="@{/files/delete}">
+    <select name="fileName">
+        <option th:each="file : ${files}"
+                th:value="${file.fileName}"
+                th:text="${file.fileName}">
+        </option>
+    </select>
+    <input type="submit" value="Delete" />
+</form>
+
+<a th:href="@{/}">Back to start</a>
+
+</body>
+</html>

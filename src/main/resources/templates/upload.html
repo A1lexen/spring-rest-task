@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org/">
+<head>
+    <meta charset="UTF-8">
+    <title>Upload</title>
+</head>
+<body>
+<form th:method="POST" th:action="@{/files}" enctype="multipart/form-data">
+    <table>
+        <tr>
+            <td><input type="file" name="file"/></td>
+        </tr>
+        <tr>
+            <td><input type="submit" value="Load"/></td>
+        </tr>
+    </table>
+</form>
+
+<a th:href="@{/}">Back to start</a>
+
+</body>
+</html>

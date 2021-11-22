@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Update</title>
+</head>
+<body>
+<form th:method="POST" th:action="@{/files/update}">
+    <select name="oldFileName">
+        <option th:each="file : ${files}"
+                th:value="${file.fileName}"
+                th:text="${file.fileName}">
+        </option>
+    </select>
+    <label>Enter the new filename</label>
+    <input type="text" name="newFileName"/>
+    <input type="submit" value="Update"/>
+</form>
+<a th:href="@{/}">Back to start</a>
+
+</body>
+</html>
