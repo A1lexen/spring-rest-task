@@ -23,12 +23,12 @@ public class FileService {
 
     public void uploadFile(MultipartFile file) throws IOException {
         writer();
-        File file1 = new File("//src//main//java//com//rest//app//dataFile//");
+        File file1 = new File("//src//main//java//com//rest//app//");
             file.transferTo(file1);
     }
 
     public void deleteFile(MultipartFile file) throws IOException {
-        File file1 = new File("//src//main//java//com//rest//app//dataFile//");
+        File file1 = new File("//src//main//java//com//rest//app//");
         if(file1.exists()){
             file1.delete();
         }else {
@@ -37,16 +37,21 @@ public class FileService {
     }
 
     public long size(String name) {
-        return new File("//src//main//java//com//rest//app//dataFile//").length();
+        return new File("//src//main//java//com//rest//app//").length();
     }
+    public InputStreamResource downloadFile(String name) throws java.io.FileNotFoundException {
+        File file = new File("//src//main//java//com//rest//app/");
+        if (!file.exists()) {
+            throw new FileNotFoundException(name);
+        }
+        return new InputStreamResource(new FileInputStream
+                (new File("//src//main//java//com//rest//app///")));
+    }
+
+
 
     public void renameFile(String new_name, String old_name) {
-        File file1 = new File("//src//main//java//com//rest//app//dataFile//"+old_name);
-        file1.renameTo(new File("//src//main//java//com//rest//app//dataFile//"+new_name));
+        File file1 = new File("//src//main//java//com//rest//app//"+old_name);
+        file1.renameTo(new File("//src//main//java//com//rest//app//"+new_name));
     }
-
-
-
-
-
 }

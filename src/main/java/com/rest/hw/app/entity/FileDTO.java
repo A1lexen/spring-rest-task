@@ -14,6 +14,5 @@ import java.io.File;
 public class FileDTO {
     String name;
     Integer size;
-    @Value("${files}")
     String path;
 }
