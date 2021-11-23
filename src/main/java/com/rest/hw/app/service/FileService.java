@@ -10,7 +10,9 @@ import java.io.*;
 @Service
 @AllArgsConstructor
 public class FileService {
-    PersonService personService ;
+    PersonService personService;
+    String path = "//src//main//java//com//rest//app//";
+
     public void writer() {
         try {
             BufferedWriter writer = new BufferedWriter(new FileWriter("dataFile", true));
@@ -23,35 +25,31 @@ public class FileService {
 
     public void uploadFile(MultipartFile file) throws IOException {
         writer();
-        File file1 = new File("//src//main//java//com//rest//app//");
-            file.transferTo(file1);
+        File file1 = new File(path);
+        file.transferTo(file1);
     }
 
     public void deleteFile(MultipartFile file) throws IOException {
-        File file1 = new File("//src//main//java//com//rest//app//");
-        if(file1.exists()){
+        File file1 = new File(path);
+        if (file1.exists()) {
             file1.delete();
-        }else {
+        } else {
             throw new FileNotFoundException();
         }
     }
 
-    public long size(String name) {
-        return new File("//src//main//java//com//rest//app//").length();
-    }
     public InputStreamResource downloadFile(String name) throws java.io.FileNotFoundException {
-        File file = new File("//src//main//java//com//rest//app/");
+        File file = new File(path);
         if (!file.exists()) {
             throw new FileNotFoundException(name);
         }
         return new InputStreamResource(new FileInputStream
-                (new File("//src//main//java//com//rest//app///")));
+                (new File(path)));
     }
 
 
-
-    public void renameFile(String new_name, String old_name) {
-        File file1 = new File("//src//main//java//com//rest//app//"+old_name);
-        file1.renameTo(new File("//src//main//java//com//rest//app//"+new_name));
+    public void renameFile(String newName, String oldName) {
+        File file1 = new File(path + oldName);
+        file1.renameTo(new File(path + newName));
     }
 }

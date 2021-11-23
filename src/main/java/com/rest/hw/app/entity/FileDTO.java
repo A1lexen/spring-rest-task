@@ -4,9 +4,6 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
-import org.springframework.beans.factory.annotation.Value;
-
-import java.io.File;
 
 @Data
 @AllArgsConstructor

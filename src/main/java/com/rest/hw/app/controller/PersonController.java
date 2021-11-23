@@ -28,7 +28,6 @@ public class PersonController {
     }
 
     @PostMapping(
-            value = "create_person",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )

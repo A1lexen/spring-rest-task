@@ -1,5 +1,7 @@
 package com.rest.hw.app.security;
 
+import com.rest.hw.app.entity.Role;
+import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -19,8 +21,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http
                 .authorizeRequests()
-                .antMatchers(HttpMethod.GET, "/persons","/{personId}").permitAll()
-                .anyRequest().hasRole("ADMIN")
+                .antMatchers(HttpMethod.GET, "/persons", "/{personId}").hasAnyRole(Role.ADMIN.name(), Role.USER.name())
+                .antMatchers(HttpMethod.POST, "/persons").hasRole(Role.ADMIN.name())
+                .antMatchers(HttpMethod.DELETE, "/{personId}").hasRole(Role.ADMIN.name())
+                .anyRequest().hasRole(Role.ADMIN.name())
                 .and()
                 .httpBasic();
 
@@ -32,19 +36,19 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         return new InMemoryUserDetailsManager(
                 User.builder()
                         .username("admin")
-                        .password("admin")
-                        .roles(passwordEncoder().encode("ADMIN"))
+                        .password(passwordEncoder().encode("ADMIN"))
+                        .roles(Role.ADMIN.name())
                         .build(),
                 User.builder()
                         .username("user")
-                        .password("user")
-                        .roles(passwordEncoder().encode("USER"))
+                        .password(passwordEncoder().encode("USER"))
+                        .roles(Role.USER.name())
                         .build()
         );
     }
 
     @Bean
-    protected PasswordEncoder passwordEncoder(){
+    protected PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder(10);
     }
 }
