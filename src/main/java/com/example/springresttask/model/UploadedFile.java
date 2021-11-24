@@ -3,9 +3,6 @@ package com.example.springresttask.model;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.io.IOException;
 
 @Getter
 @Setter
