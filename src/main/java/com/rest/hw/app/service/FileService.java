@@ -28,8 +28,8 @@ public class FileService {
         File folder = new File(path);
         List<File> files = List.of(folder.listFiles());
         List<FileDTO> fileList = new ArrayList<>();
-        for (File i : files) {
-            fileList.add(new FileDTO(i.getName(), (int) i.length(), i.getPath()));
+        for (File file : files) {
+            fileList.add(new FileDTO(file.getName(), (int) file.length(), file.getPath()));
         }
         return fileList;
     }
@@ -45,11 +45,14 @@ public class FileService {
 
     public InputStreamResource downloadFile(String name) throws java.io.FileNotFoundException {
         File file = new File(path);
-        if (!file.exists()) {
+        InputStreamResource newFile;
+        if (file.exists()) {
+            newFile = new InputStreamResource(new FileInputStream
+                    (new File(path)));
+        } else {
             throw new FileNotFoundException(name);
         }
-        return new InputStreamResource(new FileInputStream
-                (new File(path)));
+        return newFile;
     }
 
     public void renameFile(String newName, String oldName) {
