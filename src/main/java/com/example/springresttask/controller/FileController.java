@@ -38,8 +38,8 @@ public class FileController {
     }
 
     @GetMapping("/download/{id}")
-    public String downloadFile(@PathVariable String id) {
-        fileService.downloadFile(Integer.parseInt(id));
+    public String downloadFile(@PathVariable Integer id) {
+        fileService.downloadFile(id);
         return "redirect:/files";
     }
 
