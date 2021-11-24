@@ -3,7 +3,6 @@ package com.example.springresttask.service;
 import com.example.springresttask.model.UploadedFile;
 import com.example.springresttask.repository.FileRepository;
 import lombok.AccessLevel;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +23,7 @@ import java.util.List;
 @Slf4j
 public class FileService {
     FileRepository fileRepository;
+    Path root = Path.of(System.getProperty("user.dir") + "\\src\\main\\resources\\uploadFiles");
 
 
     public void addFileToList(MultipartFile file) {
@@ -31,7 +31,7 @@ public class FileService {
     }
 
     public void downloadFile(int id) {
-        Path path = Paths.get(System.getProperty("user.dir") + "\\src\\main\\resources\\uploadFiles\\" + fileRepository.getById(id).getFileName());
+        Path path = Paths.get(root + "\\" + fileRepository.getById(id).getFileName());
         try {
             Files.write(path, fileRepository.getById(id).getFileData());
         } catch (IOException e) {
@@ -49,8 +49,7 @@ public class FileService {
     }
 
     public void updateFile(String newFileName, String oldFileName) {
-        String folderPath = System.getProperty("user.dir") + "\\src\\main\\resources\\uploadFiles\\";
-        File newFile = new File(folderPath + newFileName);
+        File newFile = new File(root + "\\" + newFileName);
 
         try {
             log.info("Creating a new file...");
@@ -62,20 +61,19 @@ public class FileService {
             log.info("closing FOS");
             fos.close();
         } catch (IOException e) {
-            log.error("", e);
+            log.error("failed try to update file.", e);
         }
 
-        File oldFile = new File(folderPath + oldFileName);
+        File oldFile = new File(root + "\\" + oldFileName);
         oldFile.delete();
 
         getFileByName(oldFileName).setFileName(newFileName);
     }
 
     public void deleteFile(String fileName) {
-        File file = new File(System.getProperty("user.dir") +
-                "\\src\\main\\resources\\uploadFiles\\" +
-                getFileByName(fileName));
+        File file = new File(root + "\\" + fileName);
         file.delete();
         fileRepository.getFileList().remove(fileRepository.getByName(fileName).getFileId());
     }
+
 }
