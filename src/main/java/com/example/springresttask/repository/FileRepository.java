@@ -10,6 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Component
 @Getter
@@ -18,17 +19,16 @@ import java.util.List;
 public class FileRepository {
     List<UploadedFile> fileList;
 
-    public void add(MultipartFile file) {
+    public boolean add(MultipartFile file) {
         byte[] fileData;
         String fileName = file.getOriginalFilename();
         int lastIndex = fileName.lastIndexOf('.');
-        try{
+        try {
             fileData = file.getBytes();
-        }
-        catch (IOException e){
+        } catch (IOException e) {
             System.err.println("failed return a byte array of the file's contents.");
             e.printStackTrace();
-            return;
+            return false;
         }
         fileList.add(new UploadedFile(
                 fileList.size(),
@@ -38,10 +38,7 @@ public class FileRepository {
                 System.getProperty("user.dir") +
                         "\\src\\main\\resources\\uploadFiles\\" +
                         fileName));
-    }
-
-    public UploadedFile getById(int id) {
-        return fileList.get(id);
+        return true;
     }
 
     public UploadedFile getByName(String fileName) {
@@ -49,7 +46,15 @@ public class FileRepository {
                 fileList.stream().
                         filter(f -> f.getFileName().equals(fileName)).
                         findFirst().
-                        get();
+                        orElseThrow(NoSuchElementException::new);
     }
 
+    public boolean isFileWithThisNameExist(String fileName) {
+        try {
+            getByName(fileName);
+            return true;
+        } catch (NoSuchElementException e) {
+            return false;
+        }
+    }
 }
