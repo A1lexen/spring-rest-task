@@ -5,23 +5,14 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.InputStreamResource;
-import org.springframework.core.io.InputStreamSource;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -29,8 +20,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class FileService {
 
-//    @Value("${path}")
-    String uploadPath = "C:\\Users\\User\\restUploads\\";
+    @Value("${path}")
+    String uploadPath;
 
     public void uploadFile(String name, MultipartFile multipartFile) {
         File file = new File(uploadPath + name);
