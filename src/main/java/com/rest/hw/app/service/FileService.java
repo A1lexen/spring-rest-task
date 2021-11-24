@@ -1,32 +1,37 @@
 package com.rest.hw.app.service;
 
-import lombok.AllArgsConstructor;
+import com.rest.hw.app.entity.FileDTO;
+import lombok.AccessLevel;
+import lombok.experimental.FieldDefaults;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
-@AllArgsConstructor
+@FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 public class FileService {
-    PersonService personService;
     String path = "//src//main//java//com//rest//app//";
 
-    public void writer() {
-        try {
-            BufferedWriter writer = new BufferedWriter(new FileWriter("dataFile", true));
-            writer.write("\n" + personService.getAll() + "\n");
-            writer.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
     public void uploadFile(MultipartFile file) throws IOException {
-        writer();
         File file1 = new File(path);
         file.transferTo(file1);
+    }
+
+    public List<FileDTO> allFiles() {
+        File folder = new File(path);
+        List<File> files = List.of(folder.listFiles());
+        List<FileDTO> fileList = new ArrayList<>();
+        for (File i : files) {
+            fileList.add(new FileDTO(i.getName(), (int) i.length(), i.getPath()));
+        }
+        return fileList;
     }
 
     public void deleteFile(MultipartFile file) throws IOException {
@@ -46,7 +51,6 @@ public class FileService {
         return new InputStreamResource(new FileInputStream
                 (new File(path)));
     }
-
 
     public void renameFile(String newName, String oldName) {
         File file1 = new File(path + oldName);

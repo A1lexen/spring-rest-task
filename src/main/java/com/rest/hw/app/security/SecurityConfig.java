@@ -1,7 +1,6 @@
 package com.rest.hw.app.security;
 
 import com.rest.hw.app.entity.Role;
-import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -21,9 +20,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http
                 .authorizeRequests()
-                .antMatchers(HttpMethod.GET, "/persons", "/{personId}").hasAnyRole(Role.ADMIN.name(), Role.USER.name())
-                .antMatchers(HttpMethod.POST, "/persons").hasRole(Role.ADMIN.name())
-                .antMatchers(HttpMethod.DELETE, "/{personId}").hasRole(Role.ADMIN.name())
+                .antMatchers(HttpMethod.GET, "/all_files", "/download_file").hasAnyRole(Role.ADMIN.name(), Role.USER.name())
+                .antMatchers(HttpMethod.POST, "/upload_file").hasRole(Role.ADMIN.name())
+                .antMatchers(HttpMethod.PUT, "/rename_file").hasRole(Role.ADMIN.name())
+                .antMatchers(HttpMethod.DELETE, "/delete_file").hasRole(Role.ADMIN.name())
                 .anyRequest().hasRole(Role.ADMIN.name())
                 .and()
                 .httpBasic();

@@ -1,38 +1,55 @@
 package com.rest.hw.app.controller;
 
+import com.rest.hw.app.entity.FileDTO;
 import com.rest.hw.app.service.FileService;
 import lombok.AllArgsConstructor;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.List;
 
 @RestController
 @AllArgsConstructor
 public class FileController {
     FileService fileService;
 
-    @PostMapping("/upload")
-    public ResponseEntity<?> fileUpload(MultipartFile file) throws IOException {
+    @PostMapping(
+            value = "/upload_file",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<?> fileUpload(@RequestBody MultipartFile file) throws IOException {
         fileService.uploadFile(file);
-        return ResponseEntity.status(HttpStatus.OK).body("uploaded");
+        return new ResponseEntity<>(file, HttpStatus.OK);
     }
 
-    @DeleteMapping("/delete")
-    public ResponseEntity<String> deleteFile(MultipartFile file) throws IOException {
+    @DeleteMapping(value = "/delete_file", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity deleteFile(@RequestBody MultipartFile file) throws IOException {
         fileService.deleteFile(file);
-        return ResponseEntity.status(HttpStatus.OK).body("deleted");
+        return new ResponseEntity<>(file, HttpStatus.OK);
     }
 
-    @PutMapping("/rename")
-    public ResponseEntity<String> changeFile(String nameNew, String nameOld) {
+    @PutMapping(value = "/rename_file", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity changeFile(String nameNew, String nameOld) {
         fileService.renameFile(nameNew, nameOld);
         return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
+    @GetMapping(value = "/all_files", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<FileDTO>> listFiles() {
+        return new ResponseEntity<>(fileService.allFiles(), HttpStatus.OK);
+    }
+
+    @GetMapping(value = "/download_file")
+    public ResponseEntity downloadFile(String name) throws FileNotFoundException {
+        InputStreamResource resource = fileService.downloadFile(name);
+        return ResponseEntity.status(HttpStatus.OK).body(resource);
     }
 
 }
