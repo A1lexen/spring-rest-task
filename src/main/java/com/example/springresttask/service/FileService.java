@@ -6,6 +6,8 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -16,6 +18,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Service
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -26,18 +29,21 @@ public class FileService {
     Path root = Path.of(System.getProperty("user.dir") + "\\src\\main\\resources\\uploadFiles");
 
 
-    public void addFileToList(MultipartFile file) {
-        fileRepository.add(file);
+    public boolean addFileToList(MultipartFile file) {
+        return fileRepository.add(file);
     }
 
-    public void downloadFile(int id) {
-        Path path = Paths.get(root + "\\" + fileRepository.getById(id).getFileName());
+    public ResponseEntity uploadFile(MultipartFile file) {
+        Path path = Paths.get(root + "\\" + file.getOriginalFilename());
         try {
-            Files.write(path, fileRepository.getById(id).getFileData());
+            Files.write(path, file.getBytes());
+            addFileToList(file);
         } catch (IOException e) {
             log.error("failed downloading file", e);
-            e.printStackTrace();
+            return new ResponseEntity<>("Root folder or file not found.", HttpStatus.NOT_FOUND);
         }
+        return new ResponseEntity<>("The file uploaded successfully", HttpStatus.OK);
+
     }
 
     public List<UploadedFile> getFileList() {
@@ -48,7 +54,14 @@ public class FileService {
         return fileRepository.getByName(fileName);
     }
 
-    public void updateFile(String newFileName, String oldFileName) {
+    public boolean isFileWithThisNameExist(String fileName) {
+        return fileRepository.isFileWithThisNameExist(fileName);
+    }
+
+    public ResponseEntity updateFile(String newFileName, String oldFileName) {
+        if (!isFileWithThisNameExist(oldFileName)) {
+            return new ResponseEntity<>("File with this name not found", HttpStatus.NOT_FOUND);
+        }
         File newFile = new File(root + "\\" + newFileName);
 
         try {
@@ -62,18 +75,30 @@ public class FileService {
             fos.close();
         } catch (IOException e) {
             log.error("failed try to update file.", e);
+            if (newFile.exists()) newFile.delete();
+            return new ResponseEntity<>("File was not updated. ", HttpStatus.BAD_GATEWAY);
         }
 
         File oldFile = new File(root + "\\" + oldFileName);
         oldFile.delete();
 
         getFileByName(oldFileName).setFileName(newFileName);
+        return new ResponseEntity<>("Successful update", HttpStatus.OK);
     }
 
-    public void deleteFile(String fileName) {
+    public ResponseEntity deleteFile(String fileName) {
+        if (!isFileWithThisNameExist(fileName)) {
+            new ResponseEntity("File with this name was not found", HttpStatus.NOT_FOUND);
+        }
         File file = new File(root + "\\" + fileName);
-        file.delete();
-        fileRepository.getFileList().remove(fileRepository.getByName(fileName).getFileId());
+        if (file.delete()) {
+            fileRepository.getFileList().remove(fileRepository.getByName(fileName).getFileId());
+            return new ResponseEntity("Successful delete", HttpStatus.OK);
+        } else {
+            log.error("File.delete return false");
+            return new ResponseEntity("File.delete return false", HttpStatus.BAD_GATEWAY);
+        }
     }
+
 
 }
