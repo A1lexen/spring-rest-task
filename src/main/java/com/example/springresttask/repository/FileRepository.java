@@ -1,5 +1,6 @@
 package com.example.springresttask.repository;
 
+import com.example.springresttask.model.PathToUploadedFiles;
 import com.example.springresttask.model.UploadedFile;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -35,26 +36,19 @@ public class FileRepository {
                 fileName,
                 fileName.substring(lastIndex, fileName.length()),
                 fileData,
-                System.getProperty("user.dir") +
-                        "\\src\\main\\resources\\uploadFiles\\" +
-                        fileName));
+                PathToUploadedFiles.getRoot() + "\\" + fileName));
         return true;
     }
 
     public UploadedFile getByName(String fileName) {
-        return
-                fileList.stream().
-                        filter(f -> f.getFileName().equals(fileName)).
-                        findFirst().
-                        orElseThrow(NoSuchElementException::new);
+        return fileList.stream()
+                    .filter(f -> f.getFileName().equals(fileName))
+                    .findFirst()
+                    .orElseThrow(NoSuchElementException::new);
     }
 
     public boolean isFileWithThisNameExist(String fileName) {
-        try {
-            getByName(fileName);
-            return true;
-        } catch (NoSuchElementException e) {
-            return false;
-        }
+        return fileList.stream()
+                .anyMatch(f -> f.getFileName().equals(fileName));
     }
 }
