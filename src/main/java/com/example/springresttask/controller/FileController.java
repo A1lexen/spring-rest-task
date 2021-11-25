@@ -25,18 +25,18 @@ public class FileController {
     }
 
     @PostMapping("/upload")
-    public ResponseEntity uploadFile(@RequestParam("file") MultipartFile file) {
+    public ResponseEntity uploadFile(@RequestParam MultipartFile file) {
         return fileService.uploadFile(file);
     }
 
     @PostMapping("/update")
-    public ResponseEntity updateFile(@RequestParam("newFileName") String newFileName,
-                                     @RequestParam("oldFileName") String oldFileName) {
+    public ResponseEntity updateFile(@RequestParam String newFileName,
+                                     @RequestParam String oldFileName) {
         return fileService.updateFile(newFileName, oldFileName);
     }
 
     @PostMapping("/delete")
-    public ResponseEntity deleteFile(@RequestParam("fileName") String fileName) {
+    public ResponseEntity deleteFile(@RequestParam String fileName) {
         return fileService.deleteFile(fileName);
     }
 
