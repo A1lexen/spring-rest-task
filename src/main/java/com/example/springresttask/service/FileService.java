@@ -1,5 +1,6 @@
 package com.example.springresttask.service;
 
+import com.example.springresttask.model.PathToUploadedFiles;
 import com.example.springresttask.model.UploadedFile;
 import com.example.springresttask.repository.FileRepository;
 import lombok.AccessLevel;
@@ -18,7 +19,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 @Service
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -26,15 +26,13 @@ import java.util.NoSuchElementException;
 @Slf4j
 public class FileService {
     FileRepository fileRepository;
-    Path root = Path.of(System.getProperty("user.dir") + "\\src\\main\\resources\\uploadFiles");
-
 
     public boolean addFileToList(MultipartFile file) {
         return fileRepository.add(file);
     }
 
     public ResponseEntity uploadFile(MultipartFile file) {
-        Path path = Paths.get(root + "\\" + file.getOriginalFilename());
+        Path path = Paths.get(PathToUploadedFiles.getRoot() + "\\" + file.getOriginalFilename());
         try {
             Files.write(path, file.getBytes());
             addFileToList(file);
@@ -62,24 +60,22 @@ public class FileService {
         if (!isFileWithThisNameExist(oldFileName)) {
             return new ResponseEntity<>("File with this name not found", HttpStatus.NOT_FOUND);
         }
-        File newFile = new File(root + "\\" + newFileName);
+        File newFile = new File(PathToUploadedFiles.getRoot() + "\\" + newFileName);
 
-        try {
+        log.info("opening a new file output stream");
+        try(FileOutputStream fos = new FileOutputStream(newFile)) {
             log.info("Creating a new file...");
             newFile.createNewFile();
-            log.info("opening a new file output stream");
-            FileOutputStream fos = new FileOutputStream(newFile);
             log.info("file content writing");
             fos.write(getFileByName(oldFileName).getFileData());
             log.info("closing FOS");
-            fos.close();
         } catch (IOException e) {
             log.error("failed try to update file.", e);
             if (newFile.exists()) newFile.delete();
             return new ResponseEntity<>("File was not updated. ", HttpStatus.BAD_GATEWAY);
         }
 
-        File oldFile = new File(root + "\\" + oldFileName);
+        File oldFile = new File(PathToUploadedFiles.getRoot() + "\\" + oldFileName);
         oldFile.delete();
 
         getFileByName(oldFileName).setFileName(newFileName);
@@ -90,7 +86,7 @@ public class FileService {
         if (!isFileWithThisNameExist(fileName)) {
             new ResponseEntity("File with this name was not found", HttpStatus.NOT_FOUND);
         }
-        File file = new File(root + "\\" + fileName);
+        File file = new File(PathToUploadedFiles.getRoot() + "\\" + fileName);
         if (file.delete()) {
             fileRepository.getFileList().remove(fileRepository.getByName(fileName).getFileId());
             return new ResponseEntity("Successful delete", HttpStatus.OK);
