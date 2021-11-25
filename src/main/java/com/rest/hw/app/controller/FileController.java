@@ -26,19 +26,19 @@ public class FileController {
     )
     public ResponseEntity<?> fileUpload(@RequestBody MultipartFile file) throws IOException {
         fileService.uploadFile(file);
-        return new ResponseEntity<>(file, HttpStatus.OK);
+        return ResponseEntity.status(HttpStatus.OK).body("uploaded");
     }
 
     @DeleteMapping(value = "/delete_file", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity deleteFile(@RequestBody MultipartFile file) throws IOException {
+    public void deleteFile(@RequestBody MultipartFile file) throws IOException {
         fileService.deleteFile(file);
-        return new ResponseEntity<>(file, HttpStatus.OK);
+        new ResponseEntity<>(file, HttpStatus.OK);
     }
 
     @PutMapping(value = "/rename_file", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity changeFile(String nameNew, String nameOld) {
+    public ResponseEntity<String> changeFile(@RequestBody String nameNew, String nameOld) {
         fileService.renameFile(nameNew, nameOld);
-        return ResponseEntity.status(HttpStatus.OK).build();
+       return ResponseEntity.status(HttpStatus.OK).build();
     }
 
     @GetMapping(value = "/all_files", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -47,9 +47,9 @@ public class FileController {
     }
 
     @GetMapping(value = "/download_file")
-    public ResponseEntity downloadFile(String name) throws FileNotFoundException {
+    public void downloadFile(@RequestParam String name) throws FileNotFoundException {
         InputStreamResource resource = fileService.downloadFile(name);
-        return ResponseEntity.status(HttpStatus.OK).body(resource);
+         ResponseEntity.status(HttpStatus.OK).body(resource);
     }
 
 }
