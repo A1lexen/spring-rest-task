@@ -11,7 +11,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
-
 @RestController
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor
@@ -35,7 +34,7 @@ public class FileController {
         return fileService.updateFile(newFileName, oldFileName);
     }
 
-    @PostMapping("/delete")
+    @DeleteMapping("/delete")
     public ResponseEntity deleteFile(@RequestParam String fileName) {
         return fileService.deleteFile(fileName);
     }
