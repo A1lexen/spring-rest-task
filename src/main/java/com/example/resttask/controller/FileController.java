@@ -1,5 +1,7 @@
-package com.example.resttask;
+package com.example.resttask.controller;
 
+import com.example.resttask.model.FileDto;
+import com.example.resttask.service.FileService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -32,7 +34,7 @@ public class FileController {
     }
 
     @GetMapping("/download")
-    public ResponseEntity<?> downloadFile(@RequestParam String name) throws FileNotFoundException {
+    public ResponseEntity<?> downloadFile(String name) throws FileNotFoundException {
         InputStreamResource resource = fileService.downloadFile(name);
         return ResponseEntity.status(HttpStatus.OK).body(resource);
     }
@@ -47,14 +49,14 @@ public class FileController {
         return ResponseEntity.status(HttpStatus.OK).body(fileService.getFile(name));
     }
 
-    @DeleteMapping("/delete/")
+    @DeleteMapping("/delete")
     public ResponseEntity<?> deleteFile(@RequestParam String name) {
         fileService.deleteFile(name);
-        return ResponseEntity.status(HttpStatus.OK).body("File successfully uploaded");
+        return ResponseEntity.status(HttpStatus.OK).body("File successfully deleted");
     }
 
     @PostMapping("/update")
-    public ResponseEntity<String> updateFile(@RequestParam String name, @RequestParam String newName) {
+    public ResponseEntity<String> updateFile(@RequestBody String name, String newName) {
         fileService.updateFile(name, newName);
         return ResponseEntity.status(HttpStatus.OK).body("File successfully updated");
     }

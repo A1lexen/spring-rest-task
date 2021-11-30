@@ -1,4 +1,4 @@
-package com.example.resttask;
+package com.example.resttask.model;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;

@@ -1,5 +1,6 @@
-package com.example.resttask;
+package com.example.resttask.service;
 
+import com.example.resttask.model.FileDto;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -25,7 +26,6 @@ public class FileService {
 
     public void uploadFile(String name, MultipartFile multipartFile) {
         File file = new File(uploadPath + name);
-        System.out.println("file path: " + uploadPath);
         try {
             multipartFile.transferTo(file);
         } catch (IOException e) {
