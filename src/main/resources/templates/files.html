@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Files</title>
+</head>
+<body>
+<table>
+    <tr>
+        <th>File</th>
+    </tr>
+    <th:block th:each="file : ${files}">
+        <tr>
+            <td>
+                <a th:href="@{'/files/download/' + ${file.getFileId()}}" th:text="${file.getFileName()}"></a>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <p>File type  <span th:text="${file.getFileType()}"></span></p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <p>File size = <span th:text="${file.getFileType().length()}"></span></p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <p>File path = <span th:text="${file.getPath()}"></span></p>
+            </td>
+        </tr>
+    </th:block>
+</table>
+<a th:href="@{/}">Back to start</a>
+</body>
+</html>
